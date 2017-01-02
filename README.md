@@ -1,6 +1,6 @@
 #  yadve - yet another distributed video encoder
 
-This is a Set of Scripts based on "dve - the distributed video encoder", but without using parallel or using ssh to start Workers on different Hosts.
+This is a Set of BASH Shell Scripts based on "dve - the distributed video encoder", but without using parallel or using ssh to start Workers on different Hosts.
 
 Script yadve-master
  - Grabs the ffmpeg options or uses Default values
