@@ -31,8 +31,7 @@ When just starting yadve-master, the complete encoding will be done only on the 
 Usage for Master Host:
 	usage: ./yadve-master [options] filename
 
-	This script breaks a video file up into chunks and encodes them in parallel via SSH on
-	multiple hosts.
+	This script breaks a video file up into chunks and encodes them.
 	
 	OPTIONS:
     	-h  this help message.
@@ -51,6 +50,8 @@ Or:
 
 Usage on Worker Host (no Options needed):
 	yadve-worker
+
+	This script starts enconding on additional host.
 
 The Workers can be startet before the Master has finished the chunks.
 
