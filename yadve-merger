@@ -1,0 +1,49 @@
+#!/bin/bash -e
+
+# This script merges the encodes chunks
+set -e
+
+# defaults for all configuration values
+ENC="ffmpeg"
+# This is to split out and copy attachment streams, like subtitles
+# and fonts, so they only get copied once.
+OUTDIR="./yadvetmp"
+TARGETSUFFIX=$(cat $OUTDIR/targetsuffix)
+BASE=$(cat $OUTDIR/basen)
+OUTFILE="../"$BASE".$TARGETSUFFIX"
+DATA_IN="-i data.enc.$TARGETSUFFIX -map 1"
+VERBOSE="verbose"
+CWD=`pwd`
+
+function on_finish() {
+        echo "Cleaning up temporary working files"
+  cd "$CWD"
+        rm -rf $OUTDIR
+        echo "Finished cleaning"
+}
+
+
+# check all required helper utils
+function checkpaths() {
+    for cmd in ffmpeg; do
+        if ! CMD=`which $cmd`; then
+            echo "$cmd not found in local path."
+            exit 1
+        fi
+    done
+}
+
+checkpaths
+
+cd $OUTDIR
+for f in `ls chunk-*.enc.$TARGETSUFFIX | sort`; do
+    echo "file $f" >> concat.txt
+done
+
+if [ $(cat cat $OUTDIR/targetsuffix | sed 's/.*\.//') == "mkv" ]; then 
+$ENC -y -v $VERBOSE -f concat -i concat.txt $DATA_IN -map 0 -c copy "$OUTFILE"
+else
+$ENC -y -v $VERBOSE -f concat -i concat.txt -map 0 -c copy "$OUTFILE"
+fi
+
+trap on_finish EXIT

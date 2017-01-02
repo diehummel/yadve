@@ -1,0 +1,82 @@
+#!/bin/bash -e
+
+# Worker Script
+# This script does the work
+
+set -e
+
+# Check if chunkfiles creation is finished
+OUTDIR="./yadvetmp"
+while ! [ -f $OUTDIR/splitfin ]
+do
+echo wait for chunks 
+  sleep 6
+done 
+
+# defaults for all configuration values
+ENC="ffmpeg"
+# This is to split out and copy attachment streams, like subtitles
+# and fonts, so they only get copied once.
+OPTS=$(cat $OUTDIR/opts)
+TARGETSUFFIX=$(cat $OUTDIR/targetsuffix)
+VERBOSE="verbose"
+CWD=`pwd`
+
+function usage() {
+    cat << EOF
+usage: just call script ./yadev_worker. It will start when chunk files are available. 
+
+This script encodes the chunks.
+
+OPTIONS:
+    -h  this help message.
+EOF
+}
+
+# check all required helper utils
+function checkpaths() {
+    for cmd in ffmpeg; do
+        if ! CMD=`which $cmd`; then
+            echo "$cmd not found in local path."
+            exit 1
+        fi
+    done
+}
+
+function encode {
+for a in $(cat $OUTDIR/status | grep -v OK | grep -v RUNNING| head -1); do
+if [ $a == "END" ]; then
+echo END
+exit 0
+else
+sed -i "s/$a/$a RUNNING `hostname`/g" $OUTDIR/status
+$ENC -y -v $VERBOSE -i $OUTDIR/$a $OPTS -f matroska $OUTDIR/$a.enc.$TARGETSUFFIX
+if [ $? = 0 ]; then
+sed -i "s/$a RUNNING/$a OK/g" $OUTDIR/status
+else
+sed -i "s/$a RUNNING/$a ERROR/g" $OUTDIR/status
+echo Error with Encoding Part $a
+fi
+fi
+done
+}
+
+while getopts “h” OPTION; do
+    case $OPTION in
+    h)
+    usage
+    exit 1
+    ;;
+    esac
+done
+shift $((OPTIND-1))
+
+checkpaths
+
+# lets start waiting and encoding
+for e in $(cat $OUTDIR/status | grep -v OK | grep -v RUNNING| head -1); do
+until [ $e == "END" ]; do
+encode
+done
+done
+

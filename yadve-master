@@ -1,0 +1,165 @@
+#!/bin/bash -e
+
+# Master Script
+# This Scripts creates the chunk Files and starts a local worker
+
+set -e
+
+# defaults for all configuration values
+ENC="ffmpeg"
+CRF=20
+OPTS="-map 0 -c:v libx265 -pix_fmt yuv420p10le -preset fast -x265-params crf=${CRF} -c:a copy"
+# This is to split out and copy attachment streams, like subtitles
+# and fonts, so they only get copied once.
+DATA_OPTS="-map 0 -c:s copy -c:t copy -c:d copy -vn -an"
+SUFFIX="new.mkv"
+OSUFFIX=$(echo $1 | sed 's/.*\.//')
+LEN=120
+OUTDIR="./yadvetmp"
+VERBOSE="verbose"
+# override defaults in a ~/.dverc file
+if [ -f ~/.dverc ]; then
+  source ~/.dverc
+fi
+
+function on_finish() {
+	echo "Cleaning up temporary working files"
+  cd "$CWD"
+	rm -rf "$OUTDIR"
+	echo "Finished cleaning"
+}
+
+function usage() {
+    cat << EOF
+usage: $0 [options] filename
+
+Example: yadve-master -o"-acodec copy -map 0 -vcodec libx265 -x265-params crf=16:colorprim=bt2020:transfer=smpte-st-2084:colormatrix=bt2020nc" -s"recode.mkv" video.mkv
+
+This script breaks a video file up into chunks and encodes them in parallel via SSH on
+multiple hosts.
+
+OPTIONS:
+    -h  this help message.
+    -t  rough length of individual video chunks, in seconds. (default=${LEN})
+    -o  encoding options. (default=${OPTS})
+    -s  output file suffix. Must be a Multimedia File Format like mkv,mp4,avi etc. (default=${SUFFIX})
+    -q  video encoding quality, shortcut to use default encoding options with
+        a different CRF. (default=${CRF})
+    -v  verbose job output. (default=false)
+EOF
+}
+
+# check all required helper utils
+function checkpaths() {
+    for cmd in ffmpeg; do
+        if ! CMD=`which $cmd`; then
+            echo "$cmd not found in local path."
+            exit 1
+        fi
+    done
+}
+
+while getopts “h:t:q:o:s:v” OPTION; do
+    case $OPTION in
+    h)
+    usage
+    exit 1
+    ;;
+    t)
+    LEN="$OPTARG"
+    ;;
+    q)
+    CRF="$OPTARG"
+    OPTS="-map 0 -c:v libx265 -pix_fmt yuv420p10le -preset fast -x265-params crf=$CRF -c:a copy"
+    ;;
+    o)
+    OPTS="$OPTARG"
+    ;;
+    s)
+    SUFFIX="$OPTARG"
+    ;;
+    v)
+    VERBOSE="info"
+    ;;
+    ?)
+    usage
+    exit
+    ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+CWD=`pwd`
+
+checkpaths
+
+if [ -d "$OUTDIR" ]; then
+rm -rf "$OUTDIR"
+if ! mkdir -p $OUTDIR; then
+    echo "Couldn't create temp chunk output dir $OUTDIR."
+    exit 1
+fi
+else
+if ! mkdir -p $OUTDIR; then
+    echo "Couldn't create temp chunk output dir $OUTDIR."
+    exit 1
+fi
+fi
+
+echo "Creating chunks to encode"
+if [[ "$1" == *".AVI" || "$1" == *".avi" ]]; then
+       $ENC -fflags +genpts -i "$1"  -map 0:a -map 0:v -codec copy -f segment -segment_time $LEN -v $VERBOSE "$OUTDIR/chunk-%03d.orig.$OSUFFIX"
+else
+echo $ENC -i "$1" -map 0 -codec copy -f segment -segment_time $LEN -v $VERBOSE "$OUTDIR/chunk-%03d.orig.$OSUFFIX"
+$ENC -i "$1" -map 0 -codec copy -f segment -segment_time $LEN -v $VERBOSE "$OUTDIR/chunk-%03d.orig.$OSUFFIX"
+fi
+
+########################################################################################################
+### Older version for splitting, needs much more time
+#DURATION_HMS=$(ffmpeg -i "$1" 2>&1 | grep Duration | cut -f 4 -d ' ')
+#DURATION_H=$(echo "$DURATION_HMS" | cut -d ':' -f 1)
+#DURATION_M=$(echo "$DURATION_HMS" | cut -d ':' -f 2)
+#DURATION_S=$(echo "$DURATION_HMS" | cut -d ':' -f 3 | cut -d '.' -f 1)
+#let "DURATION = ( DURATION_H * 60 + DURATION_M ) * 60 + DURATION_S"
+#OUT_FILE_FORMAT="chunk-%03d.orig.$OSUFFIX"
+
+#N='1'
+#OFFSET='0'
+#let 'N_FILES = DURATION / LEN + 1'
+ 
+#while [ "$OFFSET" -lt "$DURATION" ] ; do
+#        OUT_FILE=$(printf "$OUT_FILE_FORMAT" "$N")
+#        echo "writing "$OUTDIR/chunk-%03d.orig" ($N/$N_FILES)..."
+#        ffmpeg -v $VERBOSE -i "$1" -vcodec copy -acodec copy -ss "$OFFSET" -t "$LEN" "$OUTDIR/$OUT_FILE"
+#        let "N = N + 1"
+#        let "OFFSET = OFFSET + LEN"
+#done
+########################################################################################################
+
+echo "Copying file metadata"
+$ENC -y -v $VERBOSE -i "$1" $DATA_OPTS "$OUTDIR/data.enc.$OSUFFIX" ||
+  DATA_IN=""
+
+# Create Files for Workers
+cd "$OUTDIR"
+ls -1 chunk-*.orig.$OSUFFIX > status
+echo END >> status
+
+echo $OPTS > opts
+BASE=`basename "$1"`
+echo $BASE > basen 
+echo $SUFFIX > targetsuffix
+touch splitfin 
+
+# Start Master Worker
+cd $CWD
+
+bash $CWD/yadve-worker
+
+# Start wait script to wait for merging 
+bash $CWD/yadve-waiter

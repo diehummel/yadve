@@ -1,0 +1,33 @@
+#!/bin/bash -e
+
+# This Script let the master wait until the last chunk is encoded
+
+set -e
+
+# defaults for all configuration values
+OUTDIR="./yadvetmp"
+CWD=`pwd`
+
+
+function merge() {
+for m in  $(cat $OUTDIR/status | grep -v OK | head -1); do
+if [ $m == "END" ];then
+bash $CWD/yadve-merger
+exit 0
+else
+echo aaa
+fi
+done
+}
+
+
+
+for m in  $(cat $OUTDIR/status | grep -v OK | head -1); do
+until [ $m == "foo" ];do
+echo Wait for finish of all Parts
+sleep 10
+merge
+done
+done
+
+
