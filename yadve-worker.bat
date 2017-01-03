@@ -3,10 +3,11 @@ rem Modify to your needs
 
 set OUTDIR=.\yadvetmp
 for /f "delims=" %%a in ('hostname') do @set HNAME=%%a
-set ENC="c:\ffmpeg\bin\ffmpeg.exe"
+set ENC=ffmpeg.exe
+set SED=sed.exe
 set /p OPTS=<%OUTDIR%\opts
 set /p TARGETSUFFIX=<%OUTDIR%\targetsuffix
-set VERBOSE="verbose"
+set VERBOSE=verbose
 
 :START
 
@@ -27,14 +28,23 @@ if %NEXT%==END (
 echo Encoding finished
 exit /b
 ) ELSE (
-sed.exe -e "s/%NEXT%/%NEXT% RUNNING %HNAME%/g" %OUTDIR%\status
+%SED% -i.bak -e "s/%NEXT%/%NEXT% RUNNING %HNAME%/g" %OUTDIR%\status
+attrib +r +s sed.exe
+del sed*
+attrib -r -s sed.exe
 %ENC% -y -v %VERBOSE% -i %OUTDIR%\%NEXT% %OPTS% %OUTDIR%\%NEXT%.enc.%TARGETSUFFIX%
 IF %ERRORLEVEL% NEQ 0 (
-sed.exe -e "s/%NEXT% RUNNING/%NEXT% ERROR/g" %OUTDIR%\status
+%SED% -i -e "s/%NEXT% RUNNING/%NEXT% ERROR/g" %OUTDIR%\status
+attrib +r +s sed.exe
+del sed*
+attrib -r -s sed.exe
 echo Error during encoding %NEXT%
 exit /b
 ) ELSE (
-sed.exe -e "s/%NEXT% RUNNING/%NEXT% OK/g" %OUTDIR%\status
+%SED% -i -e "s/%NEXT% RUNNING/%NEXT% OK/g" %OUTDIR%\status
+attrib +r +s sed.exe
+del sed*
+attrib -r -s sed.exe
 GOTO STARTENC
 )
 )
