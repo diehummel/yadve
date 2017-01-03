@@ -62,21 +62,37 @@ The Master Host must share the working Directory with NFS Server or Samba Server
 The Scripts can be called from the Share. Not local copy or local tmp directory is needed.
 
 FFMPEG must be installed. (Version 3.2.2 recommended)
+  https://ffmpeg.org/download.html
+ 
+SED must be installed.
 
 ## Installation 
 
 ### Linux
 The Scripts are written for bash Shell. They should run on most Linux Distributions.
 You maybe need to install bash.
+FFMPEG Download: Follow https://ffmpeg.org/download.html
+SED: Use yum or apt-get or whatever what paketmanager you are using. :)
 
 ### OSX
 A worker Script for OSX is available.
 The Master Script is not tested on OSX.
+SED is ususally already installed.
+FFMPEG: Follow BREW http://brew.sh/index_de.html
+When Brew is installed you could use:
+  brew install ffmpeg --with-vpx --with-vorbis --with-libvorbis --with-vpx --with-vorbis --with-theora --with-libogg --with-libvorbis --with-gpl --with-version3 --with-nonfree --with-postproc --with-libaacplus --with-libass --with-libcelt --with-libfaac --with-libfdk-aac --with-libfreetype --with-libmp3lame --with-libopencore-amrnb --with-libopencore-amrwb --with-libopenjpeg --with-openssl --with-libopus --with-libschroedinger --with-libspeex --with-libtheora --with-libvo-aacenc --with-libvorbis --with-libvpx --with-libx264 --with-libxvid --with-libx265
+  
+  Note: If you need yuv420p10 to encode 10 bit colors, you have to uninstall x265
+    brew uninstall x265
+  and install that way again
+    brew install x265 --with-16bit
 
 ### Windows
 
-You could use cygwin.
-I may will add a native windows worker batch file soon.
+You could use cygwin or use yadve-worker.bat
+FFMPEG Download: Follow https://ffmpeg.org/download.html
+Download SED + Dependencies from http://gnuwin32.sourceforge.net/packages/sed.htm
+  and put them into same directory of the scripts. (Or also edit the batch file and set the path to sed)
 
 # Copyright
 yadve is copyright 2017 by Christian Hummel.
