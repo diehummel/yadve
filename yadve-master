@@ -113,10 +113,9 @@ fi
 
 echo "Creating chunks to encode"
 if [[ "$1" == *".AVI" || "$1" == *".avi" ]]; then
-       $ENC -fflags +genpts -i "$1"  -map 0:a -map 0:v -codec copy -f segment -segment_time $LEN -v $VERBOSE "$OUTDIR/chunk-%03d.orig.$OSUFFIX"
+       $ENC -fflags +genpts -i "$1"  -map 0:a -map 0:v -codec copy -f segment -segment_time $LEN -segment_format matroska -v $VERBOSE "$OUTDIR/chunk-%03d.orig.$OSUFFIX"
 else
-echo $ENC -i "$1" -map 0 -codec copy -f segment -segment_time $LEN -v $VERBOSE "$OUTDIR/chunk-%03d.orig.$OSUFFIX"
-$ENC -i "$1" -map 0 -codec copy -f segment -segment_time $LEN -v $VERBOSE "$OUTDIR/chunk-%03d.orig.$OSUFFIX"
+$ENC -i "$1" -map 0 -codec copy -f segment -segment_time $LEN -segment_format matroska -v $VERBOSE "$OUTDIR/chunk-%03d.orig.$OSUFFIX"
 fi
 
 ########################################################################################################
