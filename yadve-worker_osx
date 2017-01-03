@@ -44,7 +44,7 @@ function checkpaths() {
 }
 
 function encode {
-sed -i '' 's/\r//' $OUTDIR/status
+#sed -i '' 's/\r//' $OUTDIR/status #buggy, does not work on OSX, will destroy status file
 for a in $(cat $OUTDIR/status | grep -v OK | grep -v RUNNING| grep -v ERROR | head -1); do
 if [ $a == "END" ]; then
 echo END
