@@ -44,13 +44,14 @@ function checkpaths() {
 }
 
 function encode {
-for a in $(cat $OUTDIR/status | grep -v OK | grep -v RUNNING| head -1); do
+sed -i 's/\r//' $OUTDIR/status
+for a in $(cat $OUTDIR/status | grep -v OK | grep -v RUNNING| grep -v ERROR | head -1); do
 if [ $a == "END" ]; then
 echo END
 exit 0
 else
 sed -i "s/$a/$a RUNNING `hostname`/g" $OUTDIR/status
-$ENC -y -v $VERBOSE -i $OUTDIR/$a $OPTS -f matroska $OUTDIR/$a.enc.$TARGETSUFFIX
+$ENC -y -v $VERBOSE -i $OUTDIR/$a $OPTS $OUTDIR/$a.enc.$TARGETSUFFIX
 if [ $? = 0 ]; then
 sed -i "s/$a RUNNING/$a OK/g" $OUTDIR/status
 else
@@ -74,7 +75,7 @@ shift $((OPTIND-1))
 checkpaths
 
 # lets start waiting and encoding
-for e in $(cat $OUTDIR/status | grep -v OK | grep -v RUNNING| head -1); do
+for e in $(cat $OUTDIR/status | grep -v OK | grep -v RUNNING| grep -v ERROR | head -1); do
 until [ $e == "END" ]; do
 encode
 done
