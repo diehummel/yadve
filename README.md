@@ -91,6 +91,7 @@ When Brew is installed you could use:
 
 You could use cygwin or use yadve-worker.bat
 FFMPEG Download: Follow https://ffmpeg.org/download.html
+ Note that actually it seems ffmpeg on windows does not support 10bit (yuv420p10le) for libx265 on Windows.
 Download SED + Dependencies from http://gnuwin32.sourceforge.net/packages/sed.htm
   and put them into same directory of the scripts. (Or also edit the batch file and set the path to sed)
 
