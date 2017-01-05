@@ -11,7 +11,7 @@ CRF=20
 OPTS="-map 0 -c:v libx265 -pix_fmt yuv420p10le -preset fast -x265-params crf=${CRF} -c:a copy"
 # This is to split out and copy attachment streams, like subtitles
 # and fonts, so they only get copied once.
-DATA_OPTS="-map 0 -c:s copy -c:t copy -c:d copy -vn -an"
+DATA_OPTS="-map 0 -c:s copy -c:t copy -c:d copy -vn -an -f matroska"
 SUFFIX="new.mkv"
 OSUFFIX=$(echo $1 | sed 's/.*\.//')
 LEN=120
