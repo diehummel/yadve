@@ -11,7 +11,7 @@ OUTDIR="./yadvetmp"
 TARGETSUFFIX=$(cat $OUTDIR/targetsuffix)
 BASE=$(cat $OUTDIR/basen)
 OUTFILE="../"$BASE".$TARGETSUFFIX"
-DATA_IN="-i data.enc.$TARGETSUFFIX -map 1"
+DATA_IN="-i data.enc -map 1"
 VERBOSE="verbose"
 CWD=`pwd`
 
