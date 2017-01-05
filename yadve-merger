@@ -5,8 +5,6 @@ set -e
 
 # defaults for all configuration values
 ENC="ffmpeg"
-# This is to split out and copy attachment streams, like subtitles
-# and fonts, so they only get copied once.
 OUTDIR="./yadvetmp"
 TARGETSUFFIX=$(cat $OUTDIR/targetsuffix)
 BASE=$(cat $OUTDIR/basen)
