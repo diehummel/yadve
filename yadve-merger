@@ -40,7 +40,7 @@ for f in `ls chunk-*.enc.$TARGETSUFFIX | sort`; do
     echo "file $f" >> concat.txt
 done
 
-if [ $(cat cat $OUTDIR/targetsuffix | sed 's/.*\.//') == "mkv" ]; then 
+if [ $(cat $OUTDIR/targetsuffix | sed 's/.*\.//') == "mkv" ]; then 
 $ENC -y -v $VERBOSE -f concat -i concat.txt $DATA_IN -map 0 -c copy "$OUTFILE"
 else
 $ENC -y -v $VERBOSE -f concat -i concat.txt -map 0 -c copy "$OUTFILE"
