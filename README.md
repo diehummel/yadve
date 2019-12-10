@@ -104,3 +104,14 @@ This program is free software: you can redistribute it and/or modify it under th
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this program. If not, see the GNU licenses page.
+
+# Donation
+Would be happy for a coffee cup donation.
+
+Donate Bitcoin: 18caPgfTVEGgDMAaiJ6A7U9t9RnH1Yez38
+ 
+Donate Digibyte: DFPm29NrC83LjdCYKwpu4j3zg9tQdPp1ek
+
+Ripple: r3pBG89ZnUeFvPmMSJNVTvUvgXSHFKjyKx
+
+ETH: 0x9aaA45e5d58a1a6fA2e6dbD651E9a08f68C9bc40
